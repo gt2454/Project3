@@ -1,4 +1,4 @@
-package com.example.duanwu.project3.adapater;
+package com.example.duanwu.project3.adapater.V2exAdapater;
 
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -11,14 +11,14 @@ import java.util.ArrayList;
  * Created by xts on 2018/11/9.
  */
 
-public class VpAdapter extends FragmentStatePagerAdapter {
-    private ArrayList<String> mTitles;
+public class VpAdapterv2ex extends FragmentStatePagerAdapter {
+
     private ArrayList<Fragment> mFragments;
 
-    public VpAdapter(FragmentManager fm, ArrayList<Fragment> fragments, ArrayList<String> titles) {
+    public VpAdapterv2ex(FragmentManager fm, ArrayList<Fragment> fragments) {
         super(fm);
         this.mFragments = fragments;
-        this.mTitles = titles;
+
     }
 
     @Override
@@ -31,9 +31,5 @@ public class VpAdapter extends FragmentStatePagerAdapter {
         return mFragments.size();
     }
 
-    @Nullable
-    @Override
-    public CharSequence getPageTitle(int position) {
-        return mTitles.get(position);
-    }
+
 }
