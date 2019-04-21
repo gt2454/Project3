@@ -1,10 +1,12 @@
 package com.example.duanwu.project3.ui.fragment;
 
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 
 import com.example.duanwu.project3.R;
+import com.example.duanwu.project3.adapater.V2exAdapater.VpAdapterv2ex;
 import com.example.duanwu.project3.base.BaseFragment;
 import com.example.duanwu.project3.bean.V2exTabsBean;
 import com.example.duanwu.project3.presenter.GankP;
@@ -27,13 +29,12 @@ import butterknife.BindView;
 public class V2exFragment extends BaseFragment <V2exV,V2exP>implements V2exV{
     private static final String TAG = "V2exFragment";
     private String mUrl = "https://www.v2ex.com/";
-    private V2exTabsBean v2exTabsBean;
     @BindView(R.id.tabLayout)
     TabLayout  tabLayout;
     @BindView(R.id.vp)
     ViewPager viewPager;
-    private ArrayList<Object> mFragments1;
-
+    private ArrayList<Fragment> mFragments1;
+//1808       管涛
     @Override
     protected V2exP initPresenter() {
         return new V2exP();
@@ -48,9 +49,6 @@ public class V2exFragment extends BaseFragment <V2exV,V2exP>implements V2exV{
     protected void initData() {
 
         new Thread(new Runnable() {
-
-
-
             @Override
             public void run() {
                 try {
@@ -66,23 +64,25 @@ public class V2exFragment extends BaseFragment <V2exV,V2exP>implements V2exV{
                         //获取标签里面文本的
                         String linkText = element.text();
                         Log.d(TAG, "linkHref: "+linkHref+",tab:"+linkText);
-                        v2exTabsBean = new V2exTabsBean(linkHref, linkText);
+                        V2exTabsBean v2exTabsBean = new V2exTabsBean(linkHref, linkText);
                         tabsList.add(v2exTabsBean);
                     }
+
+
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             mFragments1 = new ArrayList<>();
                             for (V2exTabsBean str:tabsList)  {
-                                mFragments1.add(new Prount_Fragment(str));
+                                mFragments1.add(new V2exFragment_detail(str));
                                 tabLayout.addTab(tabLayout.newTab().setText(str.tab));
                             }
-                            VpTabAdapter vpTabAdapter = new VpTabAdapter(getChildFragmentManager(), mFragments1);
-                            mVp.setAdapter(vpTabAdapter);
+                            VpAdapterv2ex vpTabAdapter = new VpAdapterv2ex(getChildFragmentManager(), mFragments1);
+                            viewPager.setAdapter(vpTabAdapter);
                             tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
                                 @Override
                                 public void onTabSelected(TabLayout.Tab tab) {
-                                    mVp.setCurrentItem(tab.getPosition());
+                                    viewPager.setCurrentItem(tab.getPosition());
                                 }
 
                                 @Override
@@ -95,12 +95,12 @@ public class V2exFragment extends BaseFragment <V2exV,V2exP>implements V2exV{
 
                                 }
                             });
-                            mVp.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+                            viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
                         }
                     });
 
 
-                    //新闻item数据
+                   /* //新闻item数据
                     Elements items = doc.select("div.cell.item");
                     for (Element item :items) {
                         //图片
@@ -141,7 +141,7 @@ public class V2exFragment extends BaseFragment <V2exV,V2exP>implements V2exV{
                             Element element = people.get(1);
                             Log.d(TAG, "最后的评论者: " + element.text());
                         }
-                    }
+                    }*/
 
                 } catch (IOException e) {
                     e.printStackTrace();
