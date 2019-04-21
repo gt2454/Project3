@@ -1,5 +1,7 @@
 package com.example.duanwu.project3.ui.fragment;
 
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 
 import com.example.duanwu.project3.R;
@@ -19,10 +21,19 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import butterknife.BindView;
+
 
 public class V2exFragment extends BaseFragment <V2exV,V2exP>implements V2exV{
     private static final String TAG = "V2exFragment";
     private String mUrl = "https://www.v2ex.com/";
+    private V2exTabsBean v2exTabsBean;
+    @BindView(R.id.tabLayout)
+    TabLayout  tabLayout;
+    @BindView(R.id.vp)
+    ViewPager viewPager;
+    private ArrayList<Object> mFragments1;
+
     @Override
     protected V2exP initPresenter() {
         return new V2exP();
@@ -35,7 +46,11 @@ public class V2exFragment extends BaseFragment <V2exV,V2exP>implements V2exV{
 
     @Override
     protected void initData() {
+
         new Thread(new Runnable() {
+
+
+
             @Override
             public void run() {
                 try {
@@ -44,16 +59,47 @@ public class V2exFragment extends BaseFragment <V2exV,V2exP>implements V2exV{
                     Element tabs = doc.select("div#Tabs").first();
                     Elements allTabs = tabs.select("a[href]");
 
-                    ArrayList<V2exTabsBean> tabsList = new ArrayList<>();
+                    final ArrayList<V2exTabsBean> tabsList = new ArrayList<>();
                     for (Element element :allTabs) {
                         //获取href属性
                         String linkHref = element.attr("href");
                         //获取标签里面文本的
                         String linkText = element.text();
                         Log.d(TAG, "linkHref: "+linkHref+",tab:"+linkText);
-                        V2exTabsBean v2exTabsBean = new V2exTabsBean(linkHref, linkText);
+                        v2exTabsBean = new V2exTabsBean(linkHref, linkText);
                         tabsList.add(v2exTabsBean);
                     }
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mFragments1 = new ArrayList<>();
+                            for (V2exTabsBean str:tabsList)  {
+                                mFragments1.add(new Prount_Fragment(str));
+                                tabLayout.addTab(tabLayout.newTab().setText(str.tab));
+                            }
+                            VpTabAdapter vpTabAdapter = new VpTabAdapter(getChildFragmentManager(), mFragments1);
+                            mVp.setAdapter(vpTabAdapter);
+                            tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                                @Override
+                                public void onTabSelected(TabLayout.Tab tab) {
+                                    mVp.setCurrentItem(tab.getPosition());
+                                }
+
+                                @Override
+                                public void onTabUnselected(TabLayout.Tab tab) {
+
+                                }
+
+                                @Override
+                                public void onTabReselected(TabLayout.Tab tab) {
+
+                                }
+                            });
+                            mVp.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+                        }
+                    });
+
+
                     //新闻item数据
                     Elements items = doc.select("div.cell.item");
                     for (Element item :items) {
@@ -96,6 +142,7 @@ public class V2exFragment extends BaseFragment <V2exV,V2exP>implements V2exV{
                             Log.d(TAG, "最后的评论者: " + element.text());
                         }
                     }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
